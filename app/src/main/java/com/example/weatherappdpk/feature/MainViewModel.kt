@@ -85,7 +85,7 @@ class MainViewModel @Inject constructor(
             result.collect { homeResult ->
                 when (homeResult) {
                     is HomeResult.Nothing -> send(HomeViewEffect.Nothing)
-                    is HomeResult.GetWeatherDetailsResult -> send(HomeViewEffect.ShowToast(null))
+                    is HomeResult.GetWeatherDetailsResult -> send(HomeViewEffect.ShowToast("Success"))
                 }
             }
         }

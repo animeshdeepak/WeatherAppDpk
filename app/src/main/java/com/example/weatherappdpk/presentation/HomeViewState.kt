@@ -6,11 +6,13 @@ import com.example.weatherappdpk.domain.models.GetWeatherDetails
 import com.example.weatherappdpk.helper.ViewState
 
 data class HomeViewState(
-    val weatherDetailsByLocation: MutableState<GetWeatherDetails?>
+    val weatherDetailsByLocation: MutableState<GetWeatherDetails?>,
+    val refreshPage: MutableState<Boolean>,
 ) : ViewState {
     companion object {
         fun default() = HomeViewState(
             weatherDetailsByLocation = mutableStateOf(null),
+            refreshPage = mutableStateOf(false),
         )
     }
 }

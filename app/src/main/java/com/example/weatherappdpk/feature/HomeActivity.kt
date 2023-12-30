@@ -1,19 +1,15 @@
 package com.example.weatherappdpk.feature
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,10 +18,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.graphics.Color
+import com.example.weatherappdpk.R
 import com.example.weatherappdpk.data.screendata.items
+import com.example.weatherappdpk.feature.screen.HomeScreen
 import com.example.weatherappdpk.helper.EndPointType
 import com.example.weatherappdpk.helper.toastL
 import com.example.weatherappdpk.helper.toastS
@@ -48,8 +44,9 @@ class HomeActivity : BaseActivity() {
                 when (homeViewEffect) {
                     is HomeViewEffect.Nothing -> Unit
                     is HomeViewEffect.ShowToast -> toastS(
-                        homeViewEffect.message ?: "Something went wrong!"
+                        homeViewEffect.message ?: getString(R.string.something_went_wrong)
                     )
+
                     is HomeViewEffect.Error -> toastL(homeViewEffect.message)
                 }
             }
@@ -80,7 +77,9 @@ class HomeActivity : BaseActivity() {
 
                     Scaffold(
                         bottomBar = {
-                            NavigationBar {
+                            NavigationBar(
+                                containerColor = Color.Transparent
+                            ) {
                                 items.forEachIndexed { index, item ->
                                     NavigationBarItem(
                                         selected = selectedItemIndex == index,
@@ -94,47 +93,16 @@ class HomeActivity : BaseActivity() {
                                                 contentDescription = item.title
                                             )
                                         },
-                                        label = { Text(text = item.title) }
                                     )
 
                                 }
                             }
                         }
-                    ) {
-                        Greeting("Android", modifier = Modifier.padding(paddingValues = it))
+                    ) { paddingValues ->
+                        HomeScreen()
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel()
-) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-            .clickable {
-                Toast.makeText(context, "text clicked", Toast.LENGTH_SHORT).show()
-                scope.launch(Dispatchers.IO) {
-                    viewModel.intent.send(
-                        HomeIntent.GetWeatherDetailsIntent(EndPointType.CURRENT, "New York")
-                    )
-                }
-            }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WeatherAppDpkTheme {
-        Greeting("Android")
     }
 }

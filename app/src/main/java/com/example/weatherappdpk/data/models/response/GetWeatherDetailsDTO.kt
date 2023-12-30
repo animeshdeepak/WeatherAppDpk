@@ -39,7 +39,7 @@ data class Current(
     @SerializedName("wind_degree") var windDegree: Int? = null,
     @SerializedName("wind_dir") var windDir: String? = null,
     @SerializedName("pressure") var pressure: Int? = null,
-    @SerializedName("precip") var precip: Int? = null,
+    @SerializedName("precip") var precip: Float? = null,
     @SerializedName("humidity") var humidity: Int? = null,
     @SerializedName("cloudcover") var cloudcover: Int? = null,
     @SerializedName("feelslike") var feelslike: Int? = null,

@@ -1,5 +1,6 @@
 package com.example.weatherappdpk.data.screendata
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -8,27 +9,24 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.weatherappdpk.R
 
-data class BottomNavigationItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-)
+sealed class BottomNavItem(
+    val route: String,
+    val filledIcon: ImageVector,
+    val outlinedIcon: ImageVector,
+    @StringRes val labelResourceId: Int
+) {
+    data object Home : BottomNavItem("home", Icons.Filled.Home, Icons.Outlined.Home, R.string.home)
+    data object Search :
+        BottomNavItem("search", Icons.Filled.Search, Icons.Outlined.Search, R.string.search)
 
-val items = listOf(
-    BottomNavigationItem(
-        title = "Home",
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-    ),
-    BottomNavigationItem(
-        title = "Search",
-        selectedIcon = Icons.Filled.Search,
-        unselectedIcon = Icons.Outlined.Search,
-    ),
-    BottomNavigationItem(
-        title = "Setting",
-        selectedIcon = Icons.Filled.Settings,
-        unselectedIcon = Icons.Outlined.Settings,
-    ),
+    data object Setting :
+        BottomNavItem("profile", Icons.Filled.Settings, Icons.Outlined.Settings, R.string.setting)
+}
+
+val bottomNavItems = listOf(
+    BottomNavItem.Home,
+    BottomNavItem.Search,
+    BottomNavItem.Setting,
 )

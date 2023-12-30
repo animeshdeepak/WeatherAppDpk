@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -13,15 +14,19 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.weatherappdpk.R
-import com.example.weatherappdpk.data.screendata.items
+import com.example.weatherappdpk.data.screendata.BottomNavItem
+import com.example.weatherappdpk.data.screendata.bottomNavItems
 import com.example.weatherappdpk.feature.screen.HomeScreen
+import com.example.weatherappdpk.feature.screen.SearchScreen
+import com.example.weatherappdpk.feature.screen.SettingScreen
 import com.example.weatherappdpk.helper.EndPointType
 import com.example.weatherappdpk.helper.toastL
 import com.example.weatherappdpk.helper.toastS
@@ -58,14 +63,12 @@ class HomeActivity : BaseActivity() {
         setContent {
             WeatherAppDpkTheme {
                 val scope = rememberCoroutineScope()
-                var selectedItemIndex by rememberSaveable {
-                    mutableIntStateOf(0)
-                }
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
+                    val navController = rememberNavController()
+
                     HandleEffects()
                     LaunchedEffect(key1 = viewModel.state.refreshPage) {
                         scope.launch(Dispatchers.IO) {
@@ -75,31 +78,50 @@ class HomeActivity : BaseActivity() {
                         }
                     }
 
-                    Scaffold(
-                        bottomBar = {
-                            NavigationBar(
-                                containerColor = Color.Transparent
-                            ) {
-                                items.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = selectedItemIndex == index,
-                                        onClick = {
-                                            selectedItemIndex = index
-                                            // navController.navigate(item.title) todo dpk
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = if (index == selectedItemIndex) item.selectedIcon else item.unselectedIcon,
-                                                contentDescription = item.title
-                                            )
-                                        },
-                                    )
+                    Scaffold(bottomBar = {
+                        NavigationBar(
+                            containerColor = Color.Transparent
+                        ) {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentRoute = navBackStackEntry?.destination?.route
+                            bottomNavItems.forEach { screen ->
+                                NavigationBarItem(
+                                    selected = currentRoute == screen.route,
+                                    onClick = {
+                                        navController.navigate(screen.route) {
+                                            // Pop up to the start destination of the graph to
+                                            // avoid building up a large stack of destinations
+                                            // on the back stack as users select items
+                                            popUpTo(navController.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            // Avoid multiple copies of the same destination when
+                                            // reselecting the same item
+                                            launchSingleTop = true
+                                            // Restore state when reselecting a previously selected item
+                                            restoreState = true
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (currentRoute == screen.route) screen.filledIcon else screen.outlinedIcon,
+                                            contentDescription = getString(screen.labelResourceId)
+                                        )
+                                    },
+                                )
 
-                                }
                             }
                         }
-                    ) { paddingValues ->
-                        HomeScreen()
+                    }) { innerPadding ->
+                        NavHost(
+                            navController,
+                            startDestination = BottomNavItem.Home.route,
+                            Modifier.padding(innerPadding)
+                        ) {
+                            composable(BottomNavItem.Home.route) { HomeScreen(navController) }
+                            composable(BottomNavItem.Search.route) { SearchScreen(navController) }
+                            composable(BottomNavItem.Setting.route) { SettingScreen(navController) }
+                        }
                     }
                 }
             }
